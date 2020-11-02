@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+20.11.02 21:30 경로변경
+*/
+
 int dataCount = 0;			//
 int featureCount = 0;		//
 int numberK = 0;				//
@@ -19,9 +23,9 @@ void main(void) {
 
 	dataToArray(&inputFile, &dataArray);
 	//printf("%d %d %d\n", dataCount, featureCount, numberK);
-	//printFloat2DArray(dataArray, dataCount, featureCount);
-		randomSampleArray(&sampleArray);
-	//printFloat2DArray(sampleArray, numberK, featureCount);
+	printFloat2DArray(dataArray, dataCount, featureCount);
+	randomSampleArray(&sampleArray);
+	printFloat2DArray(sampleArray, numberK, featureCount);
 
 	return;
 }
