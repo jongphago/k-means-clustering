@@ -55,7 +55,7 @@ void queueFromArray(Queue** queueArray)
 
 
 /*
-함수 [ sturctFromData ]는
+함수 [ sturctFromDRandom]는
 	featureCount개 데이터를 Node의 data 멤버에 할당한다.
 	featureCount는 데이터에 따라 달라지지만 값은 고정이므로 동적할당을 이용한다.
 	Node를 선언하고 data멤버에 값을 할당하기 전에 data의 주소에 동적할당을 한다.
@@ -64,7 +64,7 @@ void queueFromArray(Queue** queueArray)
 	2. Node의 멤버 중 float*로 선언된 featureArray를 동적할당하여 선언한다.
 	3. for문을 featureCount번 실행하여 featureArray[i]에 (float)rand(1000)값을 저장한다.
 */
-Node* structFromData()
+Node* structFromRandom()
 {
 	Node* tempNode = malloc(sizeof(Node));
 	tempNode->featureArray = malloc(featureCount * sizeof(float));
@@ -74,6 +74,42 @@ Node* structFromData()
 	}
 	tempNode->next = NULL;
 	return tempNode;
+}
+
+/*
+ * 함수명 : structFromArray
+ * 입력형식 : float** , 1D Array Pointer
+ * 출력형식 : Node* , Node Pointer
+ * 함수[ structFromArray] 설명
+
+ * 함수의 동작 순서
+	1.
+*/
+Node* structFromArray(float* dataArray)
+{
+	Node* tempNode = malloc(sizeof(Node));
+	tempNode->featureArray = malloc(featureCount * sizeof(float));
+	for (int i = 0; i < featureCount; i++)
+	{
+		(tempNode->featureArray)[i] = dataArray[i];
+	}
+	tempNode->next = NULL;
+	return tempNode;
+}
+/*
+ * 함수명 : pushArrayStruct
+ * 입력형식 : Queue*	float*
+ * 출력형식 : void
+ * 함수 [ pushArrayStruct] 설명
+
+ * 함수의 동작 순서
+	1.
+*/
+void pushArrayStruct(Queue* queue, float* dataArray)
+{
+	Node* tempNode = structFromArray(dataArray);
+	queue->rearNode = tempNode;
+	queue->frontNode = tempNode;
 }
 /*
 함수 [ pushFirst ]는
@@ -85,7 +121,7 @@ Node* structFromData()
 */
 void pushFirst(Queue* queue)
 {
-	Node* tempNode = structFromData();
+	Node* tempNode = structFromRandom();
 	queue->rearNode = tempNode;
 	queue->frontNode = tempNode;
 }
@@ -106,7 +142,6 @@ Queue* makeQueue()
 
 /*
  * 함수명 : makeQueueArray
- * 작성자 : 김종현
  * 입력형식 : void
  * 출력형식 : Queue**
  * 함수[ queueArray] 설명
@@ -125,6 +160,16 @@ Queue** makeQueueArray()
 	return queueArray;
 }
 
+Queue** makeInputQueue(float** dataArray)
+{
+	Queue** queueArray = malloc(dataCount * sizeof(Queue*));
+	for (int i = 0; i < dataCount; i++)
+	{
+		queueArray[i] = makeQueue();
+		pushArrayStruct(queueArray[i], dataArray[i]);
+	}
+	return queueArray;
+}
 
 void main(void) {
 	FILE* inputFile;
@@ -134,17 +179,17 @@ void main(void) {
 
 	dataToArray(&inputFile, &dataArray);
 	//printf("%d %d %d\n", dataCount, featureCount, numberK);
-	//printFloat2DArray(dataArray, dataCount, featureCount);
+	printFloat2DArray(dataArray, dataCount, featureCount);
 	randomSampleArray(&sampleArray);
 	//printFloat2DArray(sampleArray, numberK, featureCount);
 
 				/*
-				함수 [ structFormData ] 테스트												[ TEST #1 ]
+				함수 [ structFormDRandom] 테스트										[ TEST #1 ]
 				*/
-				Node* testNode = structFromData();
+				Node* testRandomNode = structFromRandom();
 				for (int i = 0; i < featureCount; i++)
 				{
-					printf("TEST #1:\t%f\n", testNode->featureArray[i]);
+					//printf("TEST #1:\t%f\n", testRandomNode->featureArray[i]);
 				}
 
 				/*
@@ -154,7 +199,7 @@ void main(void) {
 				pushFirst(firstQueue);
 				for (int i = 0; i < featureCount; i++)
 				{
-					printf("TEST #2:\t%f\n", firstQueue->frontNode->featureArray[i]);
+					//printf("TEST #2:\t%f\n", firstQueue->frontNode->featureArray[i]);
 				}
 				
 				/*
@@ -165,7 +210,40 @@ void main(void) {
 				{
 					for (int j = 0; j < featureCount; j++)
 					{
-						printf("TEST #3:\t%f\t", queueArray[i]->frontNode->featureArray[j]);
+						//printf("TEST #3:\t%f\t", queueArray[i]->frontNode->featureArray[j]);
+					}
+					//printf("\n");
+				}
+
+				/*
+				함수 [ structFromArray ] 테스트												[ TEST #4 ]
+				*/
+				float sampleArrayElement[] = { -0.7303783878, 1.2121255077 };
+				Node* testArrayNode = structFromArray(sampleArrayElement);
+				for (int i = 0; i < featureCount; i++)
+				{
+					//printf("TEST #4:\t%f\n", testArrayNode->featureArray[i]);
+				}
+
+				/*
+				함수 [ pushArrayStruct ] 테스트												[ TEST #5 ]
+				*/
+				Queue* secondQueue = makeQueue();
+				pushArrayStruct(secondQueue, sampleArrayElement);
+				for (int i = 0; i < featureCount; i++)
+				{
+					printf("TEST #5:\t%f\n", secondQueue->frontNode->featureArray[i]);
+				}
+
+				/*
+				함수 [ makeInputQueue ] 테스트											[ TEST #6 ]
+				*/
+				Queue** secondQueueArray = makeInputQueue(dataArray);
+				for (int i = 0; i < dataCount; i++)
+				{
+					for (int j = 0; j < featureCount; j++)
+					{
+						printf("TEST #6:\t%f\t", secondQueueArray[i]->frontNode->featureArray[j]);
 					}
 					printf("\n");
 				}
