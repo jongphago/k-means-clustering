@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
-20.11.02 21:30 경로변경
-*/
-
 int dataCount = 0;			//
 int featureCount = 0;		//
 int numberK = 0;				//
@@ -34,7 +30,6 @@ void scanfException(int scanfReturn, int scanfTarget);
 void dataToArray(FILE** inputFile, float*** dataArray);
 void printFloat2DArray(float** dataArray, int firstIndexCount, int secondIndexCount);
 void randomSampleArray(float*** sampleArray);
-void structFormData(Node** tempNode);
 void pushQueue(Queue* queue);
 
 
@@ -55,36 +50,7 @@ void pushQueue(Queue* queue);
 */
 void queueFromArray(Queue** queueArray)
 {
-	// 1. 동적할당을 이용하여 numberK개 Queue* 를 담는 배열을 선언한다. 
-	*queueArray = malloc(numberK * sizeof(Queue*));
-	if ((*queueArray)== NULL)
-	{
-		printf("Memory allocation Error.");
-		exit(-1);
-	}
-
-	// 2. for문을 numberK번 돌며 array[i]에 Queue를 선언하고 초기화한다.
-	for (int i = 0; i < numberK; i++)
-	{
-		(*queueArray)[i] = malloc(sizeof(Queue));
-		if ((*queueArray)[i] == NULL)
-		{
-			printf("Memory allocation Error.");
-			exit(-1);
-		}
-		((*queueArray)[i])->frontNode = NULL;
-		((*queueArray)[i])->rearNode = NULL;
-		((*queueArray)[i])->nodeCounts = 0;
-
-		// 3. Node를 생성하고 for문을 featureCount번 돌며 Queue->data에 queuePush한다.
-		pushQueue(&((*queueArray)[i]));
-		printf("함수 [ pusyQueue ] 1회 호출 되었습니다.\n");
-
-		for (int j = 0; j < featureCount; j++)
-		{
-			//printf("%f\n", ((*queueArray)[i]->frontNode->featureArray)[i]);
-		}
-	}
+	
 }
 
 /*
@@ -97,17 +63,7 @@ void queueFromArray(Queue** queueArray)
 */
 void pushQueue(Queue* queue)
 {
-	Node* tempNode;
-	structFormData(&tempNode);
-	tempNode->next = NULL;
-	queue->frontNode = tempNode;
-	queue->rearNode = tempNode;
-	queue->nodeCounts++;
-
-	for (int i = 0; i < featureCount; i++)
-	{																																					////////////
-		printf("TEST1: %f\t", (queue->frontNode->featureArray)[i]);												// TEST 1//
-	}																																					////////////
+	
 }
 /*
 함수 [ sturctFromData ]는
@@ -117,26 +73,18 @@ void pushQueue(Queue* queue)
 함수의 동작 순서는 다음과 같다.
 	1. Node를 선언한다.
 	2. Node의 멤버 중 float*로 선언된 featureArray를 동적할당하여 선언한다.
-	3. for문을 featureCount번 실행하여 featureArray[i]에 외부 데이터 dataArray[i]를 저장한다.
+	3. for문을 featureCount번 실행하여 featureArray[i]에 (float)rand(1000)값을 저장한다.
 */
-void structFormData(Node** tempNode)
+Node* structFormData()
 {
-	//1. Node를 선언한다.
-	*tempNode = malloc(sizeof(Node));
-
-	//2. Node의 멤버 중 float*로 선언된 featureArray를 동적할당하여 선언한다.
-	(*tempNode)->featureArray = malloc(featureCount * sizeof(float));
-	if (((*tempNode)->featureArray) == NULL)
-	{
-		printf("Memory allocation Error.");
-		exit(-1);
-	}
-
-	//3. for문을 featureCount번 실행하여 featureArray[i]에 외부 데이터 dataArray[i]를 저장한다.
+	Node* tempNode = malloc(sizeof(Node));
+	tempNode->featureArray = malloc(featureCount * sizeof(float));
 	for (int i = 0; i < featureCount; i++)
 	{
-		((*tempNode)->featureArray)[i] = (float)rand();
+		(tempNode->featureArray)[i] = (float)rand(1000);
 	}
+	tempNode->next = NULL;
+	return tempNode;
 }
 
 
@@ -150,16 +98,16 @@ void main(void) {
 	//printf("%d %d %d\n", dataCount, featureCount, numberK);
 	//printFloat2DArray(dataArray, dataCount, featureCount);
 	randomSampleArray(&sampleArray);
-	printFloat2DArray(sampleArray, numberK, featureCount);
+	//printFloat2DArray(sampleArray, numberK, featureCount);
 
-	queueFromArray(&queueArray, sampleArray);
-
-	
-	/*float floatArray[] = { 11.0, 12.0 };
-	Node* testNode = malloc(sizeof(Node));
-	structFormData(&testNode, &floatArray);
-	printf("%f", (testNode->featureArray)[1]);*/
-
+	/*
+	함수 [ structFormData() ] 테스트
+	*/
+	Node* testNode = structFormData();
+		for (int i = 0; i < featureCount; i++)
+	{
+		printf("%f\n", testNode->featureArray[i]);
+	}
 	return;
 }
 
