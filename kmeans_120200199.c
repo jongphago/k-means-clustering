@@ -341,9 +341,10 @@ void main(void) {
 				queueArray = makeQueueArray();
 				for (int i = 0; i < numberK; i++)
 				{
+					printf("TEST PRINT #3:\t");
 					for (int j = 0; j < featureCount; j++)
 					{
-						printf("TEST PRINT #3:\t%f\t\n", queueArray[i]->frontNode->featureArray[j]);
+						printf("%f\t", queueArray[i]->frontNode->featureArray[j]);
 					}
 					printf("\n");
 				}
@@ -437,6 +438,27 @@ void main(void) {
 				{
 					Node* testNode = queuePop(thirdQueue);
 					shortestQueuePush(queueArray, testNode);
+				}
+				for (int i = 0; i < numberK; i++)
+				{
+					printf("queueArray[%d]: %d\n", i, queueArray[i]->nodeCounts);
+				}
+
+				for (int i = 0; i < numberK; i++)
+				{
+					Node* currentNode = queueArray[i]->frontNode;
+					printf("INDEX: %d\n", i);
+					while (currentNode->next != NULL)
+					{
+						for (int j = 0; j < featureCount; j++)
+						{
+							printf("%f ", currentNode->featureArray[j]);
+						}
+						currentNode = currentNode->next;
+						printf("\n");
+					}
+					
+
 				}
 
 	return;
