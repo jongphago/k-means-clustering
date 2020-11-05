@@ -25,13 +25,10 @@ typedef  struct Queue{
 	int nodeCounts;
 } Queue;
 
-
 void scanfException(int scanfReturn, int scanfTarget);
 void dataToArray(FILE** inputFile, float*** dataArray);
 void printFloat2DArray(float** dataArray, int firstIndexCount, int secondIndexCount);
 void randomSampleArray(float*** sampleArray);
-void pushQueue(Queue* queue);
-
 
 /*
 함수 [ queueFromArray ]는
@@ -52,8 +49,6 @@ void queueFromArray(Queue** queueArray)
 {
 	
 }
-
-
 /*
 함수 [ sturctFromDRandom]는
 	featureCount개 데이터를 Node의 data 멤버에 할당한다.
@@ -75,7 +70,6 @@ Node* structFromRandom()
 	tempNode->next = NULL;
 	return tempNode;
 }
-
 /*
  * 함수명 : structFromArray
  * 입력형식 : float** , 1D Array Pointer
@@ -97,6 +91,27 @@ Node* structFromArray(float* dataArray)
 	return tempNode;
 }
 /*
+ * 함수명 : structFromFile
+ * 입력형식 : 
+ * 출력형식 : Node* , Node Pointer
+ * 함수[ structFromFile ] 설명
+
+ * 함수의 동작 순서
+	1.
+*/
+Node* structFromFile(FILE** inputFile)
+{
+	Node* tempNode = malloc(sizeof(Node));
+	tempNode->featureArray = malloc(featureCount * sizeof(float));
+	for (int i = 0; i < featureCount; i++)
+	{
+		fscanf(*inputFile, "%f", &((tempNode->featureArray)[i]));
+		//printf("%f\t", (tempNode->featureArray)[i]);
+	}
+	tempNode->next = NULL;
+	return tempNode;
+}
+/*
  * 함수명 : pushArrayStruct
  * 입력형식 : Queue*	float*
  * 출력형식 : void
@@ -110,6 +125,19 @@ void pushArrayStruct(Queue* queue, float* dataArray)
 	Node* tempNode = structFromArray(dataArray);
 	queue->rearNode = tempNode;
 	queue->frontNode = tempNode;
+}
+void pushQueue(Queue* queue, Node* tempNode)
+{
+	if (queue->nodeCounts == 0)
+	{
+		queue->frontNode = tempNode;
+	}
+	else
+	{
+		queue->rearNode->next = tempNode;
+	}
+	queue->rearNode = tempNode;
+	queue->nodeCounts++;
 }
 /*
 함수 [ pushFirst ]는
@@ -139,7 +167,6 @@ Queue* makeQueue()
 	tempQueue->nodeCounts = 0;
 	return tempQueue;
 }
-
 /*
  * 함수명 : makeQueueArray
  * 입력형식 : void
@@ -159,7 +186,15 @@ Queue** makeQueueArray()
 	}
 	return queueArray;
 }
+/*
+ * 함수명 : makeInputQueue
+ * 입력형식 : float**
+ * 출력형식 : Queue**
+ * 함수[ queueArray] 설명
 
+ * 함수의 makeInputQueue 순서
+	1.
+*/
 Queue** makeInputQueue(float** dataArray)
 {
 	Queue** queueArray = malloc(dataCount * sizeof(Queue*));
@@ -171,6 +206,21 @@ Queue** makeInputQueue(float** dataArray)
 	return queueArray;
 }
 
+Queue* makeFileQueue()
+{
+	FILE* inputFile = fopen("input.txt", "r");
+	fscanf(inputFile, "%d %d %d", &dataCount, &featureCount, &numberK);
+	//printf("%d %d %d", dataCount, featureCount, numberK);
+
+	Queue* tempQueue = makeQueue();
+	for (int i = 0; i < dataCount; i++)
+	{
+		Node* tempNode = structFromFile(&inputFile);
+		pushQueue(tempQueue, tempNode);
+	}
+	return tempQueue;
+}
+
 void main(void) {
 	FILE* inputFile;
 	float** dataArray;				// inputFile의 값을 저장하고 있는 [ featureCount ] 차원 배열
@@ -178,10 +228,10 @@ void main(void) {
 	Queue** queueArray;
 
 	dataToArray(&inputFile, &dataArray);
-	//printf("%d %d %d\n", dataCount, featureCount, numberK);
+	printf("%d %d %d\n", dataCount, featureCount, numberK);
 	printFloat2DArray(dataArray, dataCount, featureCount);
 	randomSampleArray(&sampleArray);
-	//printFloat2DArray(sampleArray, numberK, featureCount);
+	printFloat2DArray(sampleArray, numberK, featureCount);
 
 				/*
 				함수 [ structFormDRandom] 테스트										[ TEST #1 ]
@@ -232,7 +282,7 @@ void main(void) {
 				pushArrayStruct(secondQueue, sampleArrayElement);
 				for (int i = 0; i < featureCount; i++)
 				{
-					printf("TEST #5:\t%f\n", secondQueue->frontNode->featureArray[i]);
+					//printf("TEST #5:\t%f\n", secondQueue->frontNode->featureArray[i]);
 				}
 
 				/*
@@ -243,10 +293,35 @@ void main(void) {
 				{
 					for (int j = 0; j < featureCount; j++)
 					{
-						printf("TEST #6:\t%f\t", secondQueueArray[i]->frontNode->featureArray[j]);
+						//printf("TEST #6:\t%f\t", secondQueueArray[i]->frontNode->featureArray[j]);
 					}
+					//printf("\n");
+				}
+
+				/*
+				함수 [ makeFileQueue ] 테스트												[ TEST #7 ]
+				*/
+				Queue* thirdQueue = makeFileQueue();
+				Node* currentNode = thirdQueue->frontNode;
+
+				for (int i = 0; i < dataCount; i++)
+				{
+					printf("TEST #7:\t%d\t", i);
+					for (int j = 0; j < featureCount; j++)
+					{
+						printf("%f\t", currentNode->featureArray[j]);
+					}
+					currentNode = currentNode->next;
 					printf("\n");
 				}
+
+
+
+
+
+
+
+
 	return;
 }
 /*
@@ -308,7 +383,6 @@ void dataToArray(FILE** inputFile, float*** dataArray)
 		}
 	}
 }
-
 /*
 함수 [printFloat2DArray]는 float type의 2차원 배열을 받아서 
 index:		data1		data2		...		dataK 형태로 출력합니다.
@@ -326,7 +400,6 @@ void printFloat2DArray(float** dataArray, int firstIndexCount, int secondIndexCo
 		printf("\n");
 	}
 }
-
 /*
 함수 [randomSampleArray]는 numberK * featureCount 크기의
 임의의 점을 생성합니다.
