@@ -140,7 +140,8 @@ Node* structFromRandom()
 	tempNode->featureArray = malloc(featureCount * sizeof(float));
 	for (int i = 0; i < featureCount; i++)
 	{
-		tempNode->featureArray[i] = 1/(float)rand(1000)*10000;
+		tempNode->featureArray[i] = 1/(float)rand()*1000;
+		printf("%f\t", tempNode->featureArray[i]);
 	}
 	tempNode->next = NULL;
 	return tempNode;
@@ -336,6 +337,10 @@ Node* queuePop(Queue* dataQueue)
 }
 float nodeDistance(Node* firstNode, Node* secondNode)
 {
+	if (firstNode == NULL || secondNode == NULL)
+	{
+		return 0;
+	}
 	float sum = 0, deviation = 0;
 	for (int i = 0; i < featureCount; i++)
 	{
@@ -378,6 +383,57 @@ void shortestQueuePush(Queue** queueArray, Node* tempNode)
 	queueArray[shortestIndex]->rearNode = tempNode;
 	queueArray[shortestIndex]->nodeCounts++;
 }
+
+void shortestQueueRenew(Queue** sampleArray)
+{
+	int shortestIndex;
+	float shortestDistance = 3.4028234664e+38;
+	shortestIndex = 0;
+	for (int i = 0; i < numberK; i++)
+	{
+		Node* tempNode = sampleArray[i]->frontNode;
+		Node* currentNode = sampleArray[i]->frontNode->next; // 새로운 기능의 Node Pop 필요 1. frontNode->next를 
+		while (1)
+		{
+			for (int j = 0; j < numberK; j++)
+			{
+				float tempDistance = nodeDistance(currentNode, sampleArray[i]->frontNode);
+				if (shortestDistance > tempDistance)
+				{
+					shortestDistance = tempDistance;
+					shortestIndex = j;
+				}
+			}
+			if (shortestIndex != i)
+			{
+				tempNode->next = currentNode->next;
+				sampleArray[i]->nodeCounts--;
+				currentNode->next = NULL;
+				sampleArray[shortestIndex]->rearNode->next = currentNode;
+				sampleArray[shortestIndex]->nodeCounts++;
+			}
+			if (currentNode == sampleArray[i]->rearNode)
+			{
+				break;
+			}
+			currentNode = currentNode->next;
+		}
+	}
+
+	/*
+	rearNode를 마지막 Node로 지정한다.
+	*/
+	for (int i = 0; i < numberK; i++)
+	{
+		Node* tempRearNode = sampleArray[i]->rearNode;
+		while (tempRearNode != NULL)
+		{
+			sampleArray[i]->rearNode = tempRearNode;
+			tempRearNode = tempRearNode->next;
+		}
+	}
+}
+
 void showQueue(Queue* queue)
 {
 	printf("NODE CNTS: %d\n", queue->nodeCounts);
@@ -401,6 +457,26 @@ void showQueue(Queue* queue)
 		}
 	}
 }
+void meanQueue(Queue* queue)
+{
+	int totalCount = queue->nodeCounts;
+	float* sumArray = calloc(featureCount,  sizeof(float));
+
+	Node* currentNode = queue->frontNode->next;
+	while (currentNode != NULL)
+	{
+		for (int i = 0; i < featureCount; i++)
+		{
+			sumArray[i] += currentNode->featureArray[i];
+		}
+		currentNode = currentNode->next;
+	}
+	for (int i = 0; i < featureCount; i++)
+	{
+		sumArray[i] /= totalCount;
+		queue->frontNode->featureArray[i] = sumArray[i];
+	}
+}
 void showQueueArray(Queue** queueArray)
 {
 	for (int i = 0; i < numberK; i++)
@@ -420,7 +496,8 @@ void showNodeCounts(Queue** queueArray)
 }
 
 void main(void) {
-	
+	srand(1000);
+
 	/*
 	inputQueue
 	*/
@@ -433,7 +510,7 @@ void main(void) {
 	Queue** sampleArray;
 	sampleArray = makeSampleArray();
 	//showQueueArray(sampleArray);
-	showQueueArray(sampleArray);
+	//showQueueArray(sampleArray);
 
 	/*
 	
@@ -441,11 +518,12 @@ void main(void) {
 	while (inputQueue->nodeCounts != 0) 
 	{
 		Node* testNode = queuePop(inputQueue);
-		shortestQueuePush(sampleArray, testNode);
+		//shortestQueuePush(sampleArray, testNode);
 	}
 	//showQueue(inputQueue);
+	//showQueueArray(sampleArray);
 
-	showQueueArray(sampleArray);
 
+	//shortestQueueRenew(sampleArray);
 	return;
 }
