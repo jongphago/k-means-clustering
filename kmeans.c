@@ -28,6 +28,29 @@ void meanStackArray(Stack** stack);
 void updateSample(Stack** sampleArray, Stack** waitingArray);
 void linkStack(Stack** sampleArray, Stack** waitingArray);
 
+int isStackNULL(Stack* stack)
+{
+
+	if (stack->top == NULL)
+	{
+		return 1;
+	}
+	return 0;
+}
+int isStackArrayNULL(Stack** stackArray)
+{
+	int mul = 1;
+	for (int i = 0; i < numberK; i++)
+	{
+		mul *= isStackNULL(stackArray[i]);
+	}
+	if (mul == 1)
+	{
+		return 1;
+	}
+	return 0;
+}
+
 void showStack(Stack* stack);
 void showStackCount(Stack* stack);
 void showStackCountArray(Stack** stackArray);
@@ -60,6 +83,7 @@ void main(void)
 		showStackArray(sampleArray);
 		printf("2. Temporary waitingArray NodeCounts\n");
 		showStackArray(waitingArray);*/
+		if (isStackArrayNULL(waitingArray)) break;
 		linkStack(sampleArray, waitingArray);
 		/*printf(">> Final sampleArray NodeCounts\n");
 		showStackArray(sampleArray);
