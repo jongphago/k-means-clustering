@@ -18,6 +18,7 @@ void push(Stack* waitingStack, Node* node);
 void pushAfterFirst(Stack* stack, Node* node);
 Stack* makeStack();
 Stack** makeSampleArray();
+
 Stack** makeWaitingArray();
 float nodeDistance(Node* firstNode, Node* testNode);
 void meanStack(Stack* stack);
@@ -26,9 +27,9 @@ void updateSample(Stack** sampleArray, Stack** waitingArray);
 void linkStack(Stack** sampleArray, Stack** waitingArray);
 int isStackNULL(Stack* stack);
 int isStackArrayNULL(Stack** stackArray);
-void showStack(Stack* stack);
 void showStackCount(Stack* stack);
 void showStackCountArray(Stack** stackArray);
+void showStack(Stack* stack);
 void showStackArray(Stack** stackArray);
 void showFirst(Stack* stack);
 void showFirstArray(Stack** stackArray);
@@ -56,6 +57,8 @@ void main(void)
 	}
 	writeFileArray(sampleArray);
 }
+
+
 Stack* makeStack()
 {
 	Stack* stack = malloc(sizeof(stack));
@@ -65,9 +68,7 @@ Stack** makeSampleArray()
 {
 	FILE* fileInput = fopen("input.txt", "r");
 	fscanf(fileInput, "%d %d %d", &dataCount, &featureCount, &numberK);
-
 	Stack** sampleArray = malloc(numberK * sizeof(Stack*));
-
 	for (int i = 0; i < numberK; i++)
 	{
 		sampleArray[i] = makeStack();
@@ -75,8 +76,8 @@ Stack** makeSampleArray()
 		firstNode->featureArray = malloc(featureCount * sizeof(float));
 		for (int j = 0; j < featureCount; j++)
 		{
-			firstNode->featureArray[j] = 1 / (float)rand();
-			//firstNode->featureArray[j] = (float)rand();
+			firstNode->featureArray[j] = (float)rand();												/*  하나의 군집으로 몰려 나머지 군집이 업데이트 되지 않음*/
+			//firstNode->featureArray[j] = 1 / (float)rand();										/*	 아래 문제 해결을 위해 역수를 취함 */
 		}
 		firstNode->next = sampleArray[i]->top;
 		sampleArray[i]->top = firstNode;
@@ -139,13 +140,13 @@ float nodeDistance(Node* firstNode, Node* testNode)
 }
 void meanStack(Stack* stack)
 {
-	if (stack->top->next == NULL)
+	if (stack->top->next == NULL)																			/* 빈 스택에 대해 군집의 중심을 다시 초기화 함*/
 	{
-		printf("빈 스택에 대해 초기화를 다시 진행합니다.\n");
+		printf("WARNGING: Re-Initialize Centeroid in Empty Stack.\n");				/* WARNING 출력 */
 		for (int i = 0; i < featureCount; i++)
 		{
-			stack->top->featureArray[i] = 1 / (float)rand();
-			//stack->top->featureArray[i] = (float)rand();
+			stack->top->featureArray[i] = (float)rand();												/*  주어진 입력데이터에선 하나의 군집으로 몰려 나머지 군집이 업데이트 되지 않음*/
+			//stack->top->featureArray[i] = 1 / (float)rand();										/*	 아래 문제 해결을 위해 역수를 취함 */
 		}
 		return;
 	}
@@ -223,7 +224,6 @@ void linkStack(Stack** sampleArray, Stack** waitingArray)
 			Node* tempNode = waitingArray[i]->top;
 			waitingArray[i]->top = tempNode->next;
 			tempNode->next = NULL;
-
 			pushAfterFirst(sampleArray[i], tempNode);
 		}
 	}
